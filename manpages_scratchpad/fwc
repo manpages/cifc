@@ -1,0 +1,47 @@
+/* vim: set filetype=javascript : */ 
+
+state = null;
+
+exports.main = function() {
+  console.log('On the whole, it wasn\'t worth the trip. The plains were really white and featureless.');
+  console.log('Like pretty much everything here.');
+  console.log('\nFeatureless Game\nInteractive boredom\nRelease 0 / Serial Number 0 / NREPL v0.0.1\n');
+  console.log(featureless_room().description(state));
+}
+
+exports.west = function (r) {
+  return 'To the west is the room with a view.\nThe door leading there is closed, locked and barricaded (from the other side).';
+};
+
+// rooms
+
+function featureless_room() {
+  return {
+    aliases: [ "featureless" // what to do with aliases that contain spaces?
+    ],
+    description: function(state) {
+      return featureless_room_description() + '\n' +
+             objects_in_room_description(state, 
+                                         featureless_room.name,
+                                         'However, on the floor of the room you see %%.');
+    },
+    west: function(state) {
+      return room_with_a_view();
+    } 
+  };
+}
+
+function room_with_a_view() {
+  return {}; 
+}
+
+// descriptions
+
+function featureless_room_description() {
+  return 'Featureless white room is featureless.\nAs always.';
+}
+
+function objects_in_room_description(state, room, template) {
+  template = template ? template : 'You see %% here.';
+  return template.replace(/%%/, 'nothing');
+}
