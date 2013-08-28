@@ -20,8 +20,9 @@ function parse(cmd) {
         replace(/\s+/g, ' ').
         split(' ');
   try {
-    console.log(eval('game.' + cmd.shift() + '(' + cmd + ')'));
-    return true;
+    cmd = 'game.' + cmd.shift() + '(' + cmd + ')';
+    console.log(eval(cmd));
+    return {ok: cmd};
   } catch(e) {
     return false;
   }
