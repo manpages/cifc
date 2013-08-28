@@ -1,7 +1,7 @@
 // nrepl.js — not a repl for interactive fiction
 repl = require('repl');
 fs = require('fs');
-game = require_game(process.argv.pop());
+game = require_game(process.argv[2]);
 
 function main() {
   game.main();
