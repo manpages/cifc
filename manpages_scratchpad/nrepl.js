@@ -21,7 +21,7 @@ function parse(cmd) {
         split(' ');
   try {
     cmd = 'game.' + cmd.shift() + '(' + 
-            cmd.map(function(x) { return '"' + x + '"'; }) + 
+            cmd.map(function(x) { return '"' + x.replace(/"/g, '\\"') + '"'; }) + 
           ')';
     console.log(cmd);
     console.log(eval(cmd));
