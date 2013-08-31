@@ -40,6 +40,20 @@ function() {
   return state.room().description(state);
 }
 
+exports.wake =
+function(x) {
+  if (x == 'up') {
+    state.room = room_with_a_view;
+    return 'The second you have realized that you were dreaming you wake up in the room with a view\n' +
+           exports.look();
+  } else if (x) {
+    return 'You don\'t see ' + x + ' here.\n' +
+           'On top of things, you\'re not a big fan of waking neither animate nor inanimate objects.'
+  } else {
+    return wat();
+  }
+}
+
 // rooms
 
 function featureless_room() {
@@ -86,4 +100,8 @@ function room_with_a_view_description() {
 function objects_in_room_description(state, room, template) {
   template = template ? template : 'You see %% here.';
   return template.replace(/%%/, 'nothing');
+}
+
+function wat() {
+  return 'Pleae be more precise.';
 }
