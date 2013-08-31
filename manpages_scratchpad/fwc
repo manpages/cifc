@@ -1,12 +1,20 @@
 /* vim: set filetype=javascript : */ 
 
 state = {
-  room: featureless_room
+  room: featureless_room,
+  relation_contains: [
+    { container: featureless_room,
+      contains: [1,2,3,4,5].map(function(x) {
+                  return {id: featureless_white_cube.name + '' + x,
+                          thing: featureless_white_cube,
+                          state: []} })
+    }
+  ]
 };
 
 exports.main = function() {
-  return 'On the whole, it wasn\'t worth the trip. The plains were really white and featureless.' +
-  'Like pretty much everything here.' +
+  return 'On the whole, it wasn\'t worth the trip. The plains were really white and featureless.\n' +
+  'Like pretty much everything here.\n' +
   '\nFeatureless Game\nInteractive boredom\nRelease 0 / Serial Number 0 / NREPL v0.0.1\n\n' +
   featureless_room().description(state);
 }
@@ -40,17 +48,54 @@ function() {
   return state.room().description(state);
 }
 
+exports.x = 
+exports.examine = 
+function(what) {
+  state.relation_contains.forEach(function (x) {
+    if(x.container == state.room) {
+      console.log(x.contains);
+    }
+  });
+  return 'It\'s too dark here.';
+}
+
 exports.wake =
 function(x) {
-  if (x == 'up') {
+  if (state.character().aliases(x)) {
     state.room = room_with_a_view;
-    return 'The second you have realized that you were dreaming you wake up in the room with a view\n' +
+    return 'The second you have realize that you were dreaming you wake up in the room with a view\n' +
            exports.look();
   } else if (x) {
     return 'You don\'t see ' + x + ' here.\n' +
            'On top of things, you\'re not a big fan of waking neither animate nor inanimate objects.'
   } else {
     return wat();
+  }
+}
+
+// player
+
+function martin() {
+  return {
+    name: 'Martin',
+    aliases: ["self", "character", "me"],
+    description: function(state) {         // we can actually hack this to be decoupled
+      return martin_description() + '\n' + // from the main game and put in "descriptions" module.
+             objects_in_inventory_description(state, martin)
+    },
+    inventory: []
+  }
+}
+
+// objects
+
+function featureless_white_cube() {
+  return {
+    name: 'Featureless white cube',
+    aliases: ['featureless', 'cube'],
+    description: function(state) {
+      return featureless_white_cube_description(state);
+    }
   }
 }
 
@@ -100,6 +145,18 @@ function room_with_a_view_description() {
 function objects_in_room_description(state, room, template) {
   template = template ? template : 'You see %% here.';
   return template.replace(/%%/, 'nothing');
+}
+
+function objects_in_inventory_description(state, character, template) {
+  prefix = character().name + ' is';
+  if(character == state.character) {
+    prefix = 'You are';
+  }
+  return prefix + ' carrying nothing of importance.';
+}
+
+function featureless_white_cube_description(state) {
+  return 'a featureless white cube';
 }
 
 function wat() {
