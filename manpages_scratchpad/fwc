@@ -4,10 +4,12 @@ state = {
   room: featureless_room,
   relation_contains: [
     { container: featureless_room,
-      contains: [1,2,3,4,5].map(function(x) {
-                  return {id: featureless_white_cube.name + '' + x,
-                          thing: featureless_white_cube,
-                          state: []} })
+      contains: [{ type: featureless_white_cube,
+                   refs: [1,2,3,4,5].map(function(x) {
+                           return {id: featureless_white_cube.name + x,
+                                   type: featureless_white_cube,
+                                   state: []} }) 
+                }]
     }
   ]
 };
@@ -51,19 +53,27 @@ function() {
 exports.x = 
 exports.examine = 
 function(what) {
-  state.relation_contains.forEach(function (x) {
-    if(x.container == state.room) {
-      console.log(x.contains);
-    }
+  relation_contains = state.relation_contains.filter(function(x) {
+    return x.container == state.room;
   });
-  return 'It\'s too dark here.';
+  // todo: deal with case when there are several 
+  // similar objects in the room.                  
+  found = relation_contains[0].contains.filter(function(x) {
+    return x.type().aliases.indexOf(what) != -1;
+  });                    
+
+  if(found.length == 0) {
+    return 'You can\'t see such thing here';
+  } else {
+    return found[0].type().description(found[0].state);
+  }
 }
 
 exports.wake =
 function(x) {
-  if (state.character().aliases(x)) {
+  if (x == 'up') {
     state.room = room_with_a_view;
-    return 'The second you have realize that you were dreaming you wake up in the room with a view\n' +
+    return 'The second you have realize that you were dreaming you wake up in the room with a view.\n' +
            exports.look();
   } else if (x) {
     return 'You don\'t see ' + x + ' here.\n' +
@@ -156,7 +166,7 @@ function objects_in_inventory_description(state, character, template) {
 }
 
 function featureless_white_cube_description(state) {
-  return 'a featureless white cube';
+  return 'A featureless white cube.';
 }
 
 function wat() {
