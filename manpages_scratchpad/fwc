@@ -9,7 +9,9 @@ exports.main = function() {
   console.log(featureless_room().description(state));
 }
 
-exports.west = function (r) {
+exports.w = 
+exports.west = 
+function (r) {
   return 'To the west is the room with a view.\nThe door leading there is closed, locked and barricaded (from the other side).';
 };
 
