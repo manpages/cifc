@@ -1,6 +1,8 @@
 /* vim: set filetype=javascript : */ 
 
-state = null;
+state = {
+  room: featureless_room
+};
 
 exports.main = function() {
   console.log('On the whole, it wasn\'t worth the trip. The plains were really white and featureless.');
@@ -11,9 +13,17 @@ exports.main = function() {
 
 exports.w = 
 exports.west = 
-function (r) {
-  return 'To the west is the room with a view.\nThe door leading there is closed, locked and barricaded (from the other side).';
+function () {
+  state.room = state.room().west(state); 
+  return state.room().description(state);
 };
+
+exports.e =
+exports.east =
+function() {
+  state.room = state.room().east(state); 
+  return state.room().description(state);
+}
 
 // rooms
 
@@ -24,23 +34,38 @@ function featureless_room() {
     description: function(state) {
       return featureless_room_description() + '\n' +
              objects_in_room_description(state, 
-                                         featureless_room.name,
+                                         featureless_room,
                                          'However, on the floor of the room you see %%.');
     },
     west: function(state) {
-      return room_with_a_view();
+      return room_with_a_view;
     } 
   };
 }
 
 function room_with_a_view() {
-  return {}; 
+  return {
+    aliases: [ "view" ],
+    description: function(state) {
+      return room_with_a_view_description() + '\n' +
+             objects_in_room_description(state,
+                                         room_with_a_view.name)
+    },
+    east: function(state) {
+      return featureless_room;
+    }
+  }; 
 }
 
 // descriptions
 
 function featureless_room_description() {
   return 'Featureless white room is featureless.\nAs always.';
+}
+
+function room_with_a_view_description() {
+  return 'A room with a view.\n' +
+         '“There\'s no one to hurry us through this dream we\'ve found.”';
 }
 
 function objects_in_room_description(state, room, template) {
