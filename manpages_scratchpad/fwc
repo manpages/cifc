@@ -5,23 +5,30 @@ state = {
 };
 
 exports.main = function() {
-  console.log('On the whole, it wasn\'t worth the trip. The plains were really white and featureless.');
-  console.log('Like pretty much everything here.');
-  console.log('\nFeatureless Game\nInteractive boredom\nRelease 0 / Serial Number 0 / NREPL v0.0.1\n');
-  console.log(featureless_room().description(state));
+  return 'On the whole, it wasn\'t worth the trip. The plains were really white and featureless.' +
+  'Like pretty much everything here.' +
+  '\nFeatureless Game\nInteractive boredom\nRelease 0 / Serial Number 0 / NREPL v0.0.1\n\n' +
+  featureless_room().description(state);
 }
 
 exports.w = 
 exports.west = 
 function () {
   state.room = state.room().west(state); 
-  return state.room().description(state);
+  return exports.look();
 };
 
 exports.e =
 exports.east =
 function() {
   state.room = state.room().east(state); 
+  return exports.look();
+}
+
+exports.l =
+exports.look = 
+function() {
+  console.log(state.room.name);
   return state.room().description(state);
 }
 

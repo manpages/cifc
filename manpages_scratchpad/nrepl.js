@@ -4,7 +4,7 @@ fs = require('fs');
 game = require_game(process.argv[2]);
 
 function main() {
-  game.main();
+  console.log(game.main());
   options = { useGlobal: true
              ,eval:      function(cmd, context, filename, callback) {callback(null, my_eval(cmd));}
              ,prompt:    'cifc> ' };
