@@ -14,15 +14,23 @@ exports.main = function() {
 exports.w = 
 exports.west = 
 function () {
-  state.room = state.room().west(state); 
-  return exports.look();
+  if (state.room().west) { 
+    state.room = state.room().west(state);
+    return exports.look();
+  } else {
+    return 'You can\'t go that way.';
+  }
 };
 
 exports.e =
 exports.east =
 function() {
-  state.room = state.room().east(state); 
-  return exports.look();
+  if (state.room().east) { 
+    state.room = state.room().east(state);
+    return exports.look();
+  } else {
+    return 'You can\'t go that way.';
+  }
 }
 
 exports.l =
