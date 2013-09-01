@@ -1,15 +1,21 @@
 /* vim: set filetype=javascript : */ 
 
-state = {
+state = { // should be world server, not global state
   room: featureless_room,
   relation_contains: [
     { container: featureless_room,
       contains: [{ type: featureless_white_cube,
                    refs: [1,2,3,4,5].map(function(x) {
-                           return {id: featureless_white_cube.name + x,
-                                   type: featureless_white_cube,
-                                   state: []} }) 
-                }]
+                           return { id: featureless_white_cube.name + x,
+                                    type: featureless_white_cube,
+                                    state: {}} }) 
+                 },
+                 { type: featureless_white_cube,
+                   refs: [{ id: featureless_white_cube.name + 'xyzzy',
+                            type: featureless_white_cube,
+                            state: {inscription: 'xyzzy'}} ]
+                 }
+      ]
     }
   ]
 };
@@ -143,6 +149,16 @@ function room_with_a_view() {
 
 // descriptions
 
+function describe(xs) {
+  return (xs == []) ? 'nothing' : describe_do(xs);
+}
+
+function describe_do(xs) {
+  return xs1 = xs.map(function(x) {
+    return '\n' + x.count + ' × ' + x.description
+  }).join(' ');
+}
+
 function featureless_room_description() {
   return 'Featureless white room is featureless.\nAs always.';
 }
@@ -154,7 +170,18 @@ function room_with_a_view_description() {
 
 function objects_in_room_description(state, room, template) {
   template = template ? template : 'You see %% here.';
-  return template.replace(/%%/, 'nothing');
+  description = 'nothing';
+  relation_contains = state.relation_contains.filter(function(x) { // boilerplate
+    return x.container == state.room;
+  })[0];
+  if(relation_contains) {
+    descriptions = relation_contains.contains.map(function(x) {
+      return { description: x.type().description(x.refs[0].state),
+               count: x.refs.length };
+    });
+    description = describe(descriptions);
+  }
+  return template.replace(/%%/, description);
 }
 
 function objects_in_inventory_description(state, character, template) {
@@ -166,9 +193,13 @@ function objects_in_inventory_description(state, character, template) {
 }
 
 function featureless_white_cube_description(state) {
-  return 'A featureless white cube.';
+  if (state.inscription) {
+    return 'A white cube with “' + state.inscription +'” written on it.';
+  } else {
+    return 'A featureless white cube.';
+  }
 }
 
 function wat() {
-  return 'Pleae be more precise.';
+  return 'Please be more precise.';
 }
