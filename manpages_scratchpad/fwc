@@ -65,13 +65,31 @@ function(what) {
   // todo: deal with case when there are several 
   // similar objects in the room.                  
   found = relation_contains[0].contains.filter(function(x) {
-    return x.type().aliases.indexOf(what) != -1;
-  });                    
+    aliases = x.type().aliases(x.refs[0].state)
+    return aliases.indexOf(what) != -1;
+  })[0];                    
 
-  if(found.length == 0) {
+  if(!found || found.length == 0) {
     return 'You can\'t see such thing here';
   } else {
-    return found[0].type().description(found[0].state);
+    return found.type().description(found.refs[0].state);
+  }
+}
+
+exports.get = 
+exports.take =
+function(x) {
+  relation_contains = state.relation_contains.filter(function(x) { //boilerplate
+    return x.container == state.room;
+  });
+  found = relation_contains[0].contains.filter(function(x) { //boilerplate
+    return x.type().aliases().indexOf(what) != -1;
+  }); 
+
+  if(found.length == 0) { //boilerplate
+    return 'You can\'t see such thing here';
+  } else {
+
   }
 }
 
@@ -94,7 +112,7 @@ function(x) {
 function martin() {
   return {
     name: 'Martin',
-    aliases: ["self", "character", "me"],
+    aliases: function(state) { return ["self", "character", "me"]},
     description: function(state) {         // we can actually hack this to be decoupled
       return martin_description() + '\n' + // from the main game and put in "descriptions" module.
              objects_in_inventory_description(state, martin)
@@ -108,7 +126,14 @@ function martin() {
 function featureless_white_cube() {
   return {
     name: 'Featureless white cube',
-    aliases: ['featureless', 'cube'],
+    aliases: function(state) {
+      as = ['featureless', 'cube'];
+      if(state && state.inscription) {
+        as.push(state.inscription);
+        as.push(state.inscription + '-cube');
+      } 
+      return as;
+    },
     description: function(state) {
       return featureless_white_cube_description(state);
     }
@@ -119,8 +144,9 @@ function featureless_white_cube() {
 
 function featureless_room() {
   return {
-    aliases: [ "featureless" // what to do with aliases that contain spaces?
-    ],
+    aliases: function(state) {
+      return [ "featureless" ] // what to do with aliases that contain spaces?
+    },
     description: function(state) {
       return featureless_room_description() + '\n' +
              objects_in_room_description(state, 
@@ -135,7 +161,7 @@ function featureless_room() {
 
 function room_with_a_view() {
   return {
-    aliases: [ "view" ],
+    aliases: function(state) { return [ "view" ] },
     description: function(state) {
       return room_with_a_view_description() + '\n' +
              objects_in_room_description(state,
@@ -154,7 +180,7 @@ function describe(xs) {
 }
 
 function describe_do(xs) {
-  return xs1 = xs.map(function(x) {
+  return xs1 = xs.map(function(x) { // should be prettier, but who cares, right?
     return '\n' + x.count + ' × ' + x.description
   }).join(' ');
 }
