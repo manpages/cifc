@@ -34,7 +34,7 @@ function try_eval(cmd) {
   try {
     return eval(cmd);
   } catch(e) {
-    return e;
+    return e.toString();
   }
 }
 

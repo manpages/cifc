@@ -2,6 +2,7 @@
 
 state = { // should be world server, not global state
   room: featureless_room,
+  player: martin,
   relation_contains: [
     { container: featureless_room,
       contains: [{ type: featureless_white_cube,
@@ -16,9 +17,14 @@ state = { // should be world server, not global state
                             state: {inscription: 'xyzzy'}} ]
                  }
       ]
-    }
+    },
+    { container: martin,
+      contains: [] }
   ]
 };
+
+exports.state = 
+function() { return state; }
 
 exports.main = function() {
   return 'On the whole, it wasn\'t worth the trip. The plains were really white and featureless.\n' +
@@ -62,8 +68,6 @@ function(what) {
   relation_contains = state.relation_contains.filter(function(x) {
     return x.container == state.room;
   });
-  // todo: deal with case when there are several 
-  // similar objects in the room.                  
   found = relation_contains[0].contains.filter(function(x) {
     aliases = x.type().aliases(x.refs[0].state)
     return aliases.indexOf(what) != -1;
@@ -78,18 +82,19 @@ function(what) {
 
 exports.get = 
 exports.take =
-function(x) {
-  relation_contains = state.relation_contains.filter(function(x) { //boilerplate
-    return x.container == state.room;
-  });
-  found = relation_contains[0].contains.filter(function(x) { //boilerplate
-    return x.type().aliases().indexOf(what) != -1;
-  }); 
-
-  if(found.length == 0) { //boilerplate
+function(what) {
+  console.log('!');
+  found = thing_contained_by(what, state.room);
+  console.log('!');
+  console.log(found);
+  if(!found) { //boilerplate
     return 'You can\'t see such thing here';
   } else {
-
+    moved = found.type().move(found.refs[0].id, state.player);
+    if (moved.ok) {
+      found.refs.shift();
+    }
+    return moved.message;
   }
 }
 
@@ -136,6 +141,17 @@ function featureless_white_cube() {
     },
     description: function(state) {
       return featureless_white_cube_description(state);
+    },
+    move: function(ref, target) { // I have a problem writing this function right now.
+      state.relation_contains = state.relation_contains.map(function(arrow) {
+        if(arrow.container == target) {
+          return arrow.contains
+        } else {         // this is the place where I'll stop adding stuff to this codebase
+          return arrow;  // and reflect on what I have learned from this attempt architecture-wise
+                         // jonn mostovoy
+                         // Sun Sep  1 21:28:59 CEST 2013
+        }
+      });
     }
   }
 }
@@ -197,11 +213,9 @@ function room_with_a_view_description() {
 function objects_in_room_description(state, room, template) {
   template = template ? template : 'You see %% here.';
   description = 'nothing';
-  relation_contains = state.relation_contains.filter(function(x) { // boilerplate
-    return x.container == state.room;
-  })[0];
+  relation_contains = get_relation_contains(state.room);
   if(relation_contains) {
-    descriptions = relation_contains.contains.map(function(x) {
+    descriptions = relation_contains.map(function(x) {
       return { description: x.type().description(x.refs[0].state),
                count: x.refs.length };
     });
@@ -228,4 +242,24 @@ function featureless_white_cube_description(state) {
 
 function wat() {
   return 'Please be more precise.';
+}
+
+// boilerplate removal
+function get_relation_contains(where) {
+  y = state.relation_contains.filter(function(x) {
+    return x.container == where;
+  })[0];
+  return y ? y.contains : [];
+}
+
+function is_contained_by(what, where) {
+  return thing_contained_by(what, where) != []
+}
+
+function thing_contained_by(what, where) {
+  y = get_relation_contains(where).filter(function(x) { 
+    console.log(x.type().aliases());
+    return x.type().aliases().indexOf(what) != -1;
+  })[0];
+  return y ? y : [];
 }
